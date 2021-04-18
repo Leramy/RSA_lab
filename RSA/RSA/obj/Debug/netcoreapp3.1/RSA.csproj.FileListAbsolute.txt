@@ -1,0 +1,13 @@
+D:\6 семестр\КМ\Лабы\RSA\RSA\bin\Debug\netcoreapp3.1\RSA.exe
+D:\6 семестр\КМ\Лабы\RSA\RSA\bin\Debug\netcoreapp3.1\RSA.deps.json
+D:\6 семестр\КМ\Лабы\RSA\RSA\bin\Debug\netcoreapp3.1\RSA.runtimeconfig.json
+D:\6 семестр\КМ\Лабы\RSA\RSA\bin\Debug\netcoreapp3.1\RSA.runtimeconfig.dev.json
+D:\6 семестр\КМ\Лабы\RSA\RSA\bin\Debug\netcoreapp3.1\RSA.dll
+D:\6 семестр\КМ\Лабы\RSA\RSA\bin\Debug\netcoreapp3.1\RSA.pdb
+D:\6 семестр\КМ\Лабы\RSA\RSA\obj\Debug\netcoreapp3.1\RSA.csprojAssemblyReference.cache
+D:\6 семестр\КМ\Лабы\RSA\RSA\obj\Debug\netcoreapp3.1\RSA.AssemblyInfoInputs.cache
+D:\6 семестр\КМ\Лабы\RSA\RSA\obj\Debug\netcoreapp3.1\RSA.AssemblyInfo.cs
+D:\6 семестр\КМ\Лабы\RSA\RSA\obj\Debug\netcoreapp3.1\RSA.csproj.CoreCompileInputs.cache
+D:\6 семестр\КМ\Лабы\RSA\RSA\obj\Debug\netcoreapp3.1\RSA.dll
+D:\6 семестр\КМ\Лабы\RSA\RSA\obj\Debug\netcoreapp3.1\RSA.pdb
+D:\6 семестр\КМ\Лабы\RSA\RSA\obj\Debug\netcoreapp3.1\RSA.genruntimeconfig.cache
