@@ -1,0 +1,227 @@
+using System;
+using System.Collections.Generic;
+using System.Numerics;
+using System.Text;
+
+namespace RSA
+{
+    class Program
+    {
+        public static int l = 25;
+        public static  BigInteger e = 65537;
+        public static BigInteger d;
+        public static BigInteger p;
+        public static BigInteger q;
+        public static BigInteger N;
+        public static BigInteger F;
+
+        //генерация BigInteger заданной длины
+        public static BigInteger RandomIntegerBelow(BigInteger N)
+        {
+            byte[] bytes = N.ToByteArray();
+            BigInteger R;
+            Random random = new Random();
+            do
+            {
+                random.NextBytes(bytes);
+                bytes[bytes.Length - 1] &= (byte)0x7F; //force sign bit to positive
+                R = new BigInteger(bytes);
+            } while (R >= N);
+
+            return R;
+        }
+
+        public static string ToBinaryString( BigInteger bigint)
+        {
+            var bytes = bigint.ToByteArray();
+            var index = bytes.Length - 1;
+            var base2 = new StringBuilder(bytes.Length * 8);
+            var binary = Convert.ToString(bytes[index], 2);
+            if (binary[0] != '0' && bigint.Sign == 1) base2.Append('0');
+            base2.Append(binary);
+            for (index--; index >= 0; index--)
+                base2.Append(Convert.ToString(bytes[index], 2).PadLeft(8, '0'));
+            return base2.ToString();
+        }
+
+        // слева направо
+        public static BigInteger BinPow(BigInteger a, BigInteger k)
+        {
+            BigInteger u = new BigInteger(1);
+            string str = ToBinaryString(k);
+            for (int i= 0; i < str.Length; i++)
+            { 
+                u = BigInteger.Multiply(u, u);
+                if (Int32.Parse(str[i].ToString()) != 0)
+                {
+                    u = BigInteger.Multiply(u, a);
+                }
+            }
+            return u;
+        }
+
+        public static BigInteger BinPowModul(BigInteger a, BigInteger k, BigInteger n)
+        {
+            BigInteger u = new BigInteger(1);
+            string str = ToBinaryString(k);
+            for (int i = 0; i < str.Length; i++)
+            {
+                u = BigInteger.Multiply(u, u);
+                u = BigInteger.Remainder(u, n);
+                if (Int32.Parse(str[i].ToString()) != 0)
+                {
+                    u = BigInteger.Multiply(u, a);
+                    u = BigInteger.Remainder(u, n);
+                }
+            }
+            return u;
+        }
+
+        public static BigInteger NOD(BigInteger a, BigInteger b)
+        {
+            while ( a.CompareTo(0)!=0 && b.CompareTo(0) != 0)
+            {
+                if (a.CompareTo(b) == 1)
+                    a = BigInteger.Remainder(a,b);
+                else
+                    b = BigInteger.Remainder(b, a);
+            }
+
+            if (a.CompareTo(0) == 1) return a;
+            else return b;
+        }
+
+        // тест Ферма
+        public static bool IsPrime(BigInteger n)
+        {
+            Random rnd = new Random();
+            BigInteger a = 0;
+            do
+            {
+                a = RandomIntegerBelow(n);
+            }
+            while (a >= n || a < 0);
+
+            if ( NOD(a, n).CompareTo(1) != 0 )
+                return false;
+
+            if (BinPowModul(a, n - 1, n).CompareTo(1) != 0 ) 
+                return false;
+             
+            return true;
+        }
+        public static BigInteger GenPrimes()
+        {
+            BigInteger p = 0 ;
+            int i = 0;
+            BigInteger n = 0;
+            while (i!=100)
+            {
+                Random rnd = new Random();
+                // проблема генерации n
+                BigInteger add = RandomIntegerBelow(BinPow(2, l - 1));
+                while (BigInteger.Remainder(add,2).CompareTo(1) !=0 )
+                {
+                    add = RandomIntegerBelow(BinPow(2, l - 1));
+                }
+                n = BigInteger.Add(BinPow(2, l - 1), add);
+                for ( i = 0; i < 100; i++)
+                {
+                    if (!IsPrime(n)) break;
+                }
+            }
+            p = n;
+            return p;
+        }
+
+        public static BigInteger Euclid(BigInteger a, BigInteger b)
+        {
+            BigInteger N = b;
+            if (a.CompareTo(0) == -1) a = BigInteger.Add(a, N);
+            (BigInteger, BigInteger, BigInteger) r = (0, a, b);
+            (BigInteger, BigInteger, BigInteger) x = (0, 1, 0);
+            (BigInteger, BigInteger, BigInteger) y = (0, 0, 1);
+
+            while(r.Item3.CompareTo(0) != 0)
+            {
+                r = (r.Item2, r.Item3, 0);
+                x = (x.Item2, x.Item3, 0);
+                y = (y.Item2, y.Item3, 0);
+                BigInteger q = BigInteger.Abs(r.Item1 / r.Item2);
+                r.Item3 = BigInteger.Add(r.Item1, - BigInteger.Multiply(q, r.Item2));
+                x.Item3 = BigInteger.Add(x.Item1, - BigInteger.Multiply(q, x.Item2));
+                y.Item3 = BigInteger.Add(y.Item1, - BigInteger.Multiply(q, y.Item2));
+            }
+
+            return (x.Item2.CompareTo(0) == 1) ? x.Item2 : BigInteger.Add(x.Item2,N);
+        }
+
+        public static void Gen()
+        {
+            do
+            {
+                p = GenPrimes();
+                while (NOD(e, BigInteger.Add(p, -1)).CompareTo(1) != 0)
+                {
+                    p = GenPrimes();
+                }
+                Console.WriteLine("p = " + p);
+
+                q = GenPrimes();
+                while (NOD(e, BigInteger.Add(q, -1)).CompareTo(1) != 0)
+                {
+                    q = GenPrimes();
+                }
+                Console.WriteLine("q = " + q);
+
+            } while (p.CompareTo(q) == 0);
+            
+
+                N = BigInteger.Multiply(p, q);
+            Console.WriteLine("n = " + N);
+
+            F = BigInteger.Multiply(BigInteger.Add(q, -1), BigInteger.Add(p, -1));
+            Console.WriteLine("F = " + F);
+
+             d = Euclid(e, F);
+            Console.WriteLine(d);
+            Console.WriteLine("Проверка");
+            BigInteger prov = BigInteger.Multiply(d, e);
+            Console.WriteLine("{0} * {1} = {2}, " + '\n' + "  {2} mod {3} = {4}", d, e, prov, F, BigInteger.Remainder(prov, F));
+
+        }
+
+
+        public static BigInteger Encr(BigInteger X)
+        {
+            return BinPowModul(X,e,N);
+        }
+
+        public static BigInteger Decr(BigInteger Y)
+        {
+            return BinPowModul(Y, d, N);
+        }
+
+
+        static void Main(string[] args)
+        {
+            Gen();
+            Console.WriteLine();
+            //  EuclidDD(65537, b);
+            //Console.WriteLine(Euclid(5657344, 4500967));
+            BigInteger X;
+            do
+            {
+                Console.WriteLine("Число: ");
+                string plainText = Console.ReadLine();
+                X = BigInteger.Parse(plainText);
+            } while (X.CompareTo(0) == 0 || X.CompareTo(N) == 1 || X.CompareTo(0) == -1 || X.CompareTo(N) == 0);
+
+            BigInteger Y = Encr(X);
+            Console.WriteLine("Зашифрованное сообщение: " + Y);
+            Console.WriteLine("Расшифрованное сообщение: " + Decr(Y));
+
+            Console.ReadKey();
+        }
+    }
+}
